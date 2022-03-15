@@ -1,4 +1,4 @@
-import sqlite3
+import sqlite3, config
 import alpaca_trade_api as tradeapi # check their api
 
 connection = sqlite3.connect('app.db')
@@ -11,15 +11,15 @@ cursor.execute("""
 """)
 rows = cursor.fetchall()
 symbols = [row['symbol'] for row in rows]
-api = tradeapi.REST('PKTAQ9ZXE9D3GMC9ABMO','2qQJnNrXMxTl8LoPf1Q5JwcoMCMtZji4iXa4n0DR',base_url='https://paper-api.alpaca.markets')
+api = tradeapi.REST(config.API_KEY_ID,config.SECRET_KEY,base_url=config.BASE_URL)
 assets = api.list_assets()
 
 for asset in assets:
     try:
         if asset.status == 'active' and asset.tradable and asset.symbol not in symbols:
             print(f"Added a new stock{asset.symbol} {asset.name}")
-#            cursor.execute("INSERT INTO stock (symbol,company) VALUES (?,?)",(asset.symbol,asset.name))
-    except Exception as e:
+            cursor.execute("INSERT INTO stock (symbol,company) VALUES (?,?)",(asset.symbol,asset.name))
+   except Exception as e:
         print(asset.symbol)
         print(e)
 
